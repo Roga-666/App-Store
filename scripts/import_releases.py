@@ -112,7 +112,18 @@ def inspect_apk(path):
     if not m:
         raise ValueError("Cannot identify Android package ID/versionCode from APK")
     signature = subprocess.run(["apksigner", "verify", "--print-certs", str(path)], check=True, capture_output=True, text=True).stdout
-    certificate_sha256, debug = parse_signer_details(signature)
+    try:
+        certificate_sha256, debug = parse_signer_details(signature)
+    except ValueError as error:
+        # These are public certificate labels from the APK, never repository secrets.
+        signer_lines = [
+            line.strip()[:180]
+            for line in signature.splitlines()
+            if "signer" in line.lower() or "certificate" in line.lower()
+        ]
+        raise ValueError(
+            f"{error}; verified apksigner signer output: {signer_lines[:12]!r}"
+        ) from error
     return {
         "package": m.group(1), "version_code": int(m.group(2)),
         "version_name": m.group(3), "certificate_sha256": certificate_sha256,
