@@ -80,7 +80,7 @@ def parse_signer_details(signature):
     lines = signature.splitlines()
     digests = []
     pattern = re.compile(
-        r"^\\s*Signer (?:#\\d+|\\([^)]*\\)) certificate SHA-256 digest:\\s*(.*)$",
+        r"^\s*Signer (?:#\d+|\([^)]*\)) certificate SHA-256 digest:\s*(.*)$",
         re.IGNORECASE,
     )
     for index, line in enumerate(lines):
@@ -99,7 +99,7 @@ def parse_signer_details(signature):
     if len(set(digests)) != 1:
         raise ValueError("Multiple distinct APK signing certificates; manual review required")
     debug = bool(re.search(
-        r"^\\s*Signer (?:#\\d+|\\([^)]*\\)) certificate DN:.*CN=Android Debug",
+        r"^\s*Signer (?:#\d+|\([^)]*\)) certificate DN:.*CN=Android Debug",
         signature, re.IGNORECASE | re.MULTILINE,
     ))
     return digests[0], debug
