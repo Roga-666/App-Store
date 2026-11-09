@@ -77,7 +77,8 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/write_fdroid_config.py
-          cp assets/repo-icon.png build/fdroid/repo/fdroid-icon.png
+          mkdir -p build/fdroid/repo/icons
+          cp assets/repo-icon.png build/fdroid/repo/icons/fdroid-icon.png
           (cd build/fdroid && fdroid update)
           test -s build/fdroid/repo/index.jar
           test -s build/fdroid/repo/index-v1.json
