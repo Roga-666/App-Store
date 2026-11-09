@@ -7,17 +7,19 @@ A GitHub Pages-hosted, signed F-Droid-compatible app catalog for your own Androi
 
 The URLs above are **not live until you create the repo, provide GitHub secrets, enable Pages, and successfully run the workflow**.
 
-## Quick setup (Linux / macOS / WSL)
+## Finish setup (Linux / macOS / WSL)
 
-1. Install [GitHub CLI](https://cli.github.com/), `git`, and a Java JDK (provides `keytool`). On Linux Mint: `sudo apt install git gh default-jdk`. Verify `gh auth login` works.
-2. Unzip this starter project and open a terminal in the `roga-app-store/` folder.
-3. Run `bash scripts/bootstrap.sh`. This creates the public GitHub repo, pushes the source, generates a persistent F-Droid **repository-index signing key**, and uploads it as encrypted GitHub Actions repository secrets. Existing keys at `~/roga-fdroid-repo.p12` will be reused, not overwritten.
-4. For private repo access, create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with **Repository access: Only select repositories** (your nine source projects), and **Contents: Read-only** permission. Paste it into the bootstrap prompt. You can leave it blank if you only want to import public repositories.
-5. Open [`App-Store` Settings → Pages](https://github.com/Roga-666/App-Store/settings/pages). Set **Build and deployment → Source → GitHub Actions**.
-6. Open [`App-Store` Actions](https://github.com/Roga-666/App-Store/actions), select **Publish Droid-ify repository**, and choose **Run workflow**. Examine the workflow summary for included projects and warnings.
-7. Once GitHub Pages publishes successfully, open Droid-ify → Repositories → Add repository and enter: `https://roga-666.github.io/App-Store/repo`. You only need to add it once.
+**The `Roga-666/App-Store` repository is already created and its source files are uploaded. Do not run the old bootstrap/push step.** The initial GitHub Action will fail until the repository-index signing secrets are configured; this is expected and prevents untrusted auto-generated keys.
 
-If you prefer to create the GitHub repository yourself in the browser, create an empty **public** repository named `App-Store`, without a README, then run `bash scripts/bootstrap.sh`; the script will push to it.
+1. On your computer, install [GitHub CLI](https://cli.github.com/) and a Java JDK with `keytool` (Linux Mint: `sudo apt install gh default-jdk`). Authenticate GitHub CLI with `gh auth login`.
+2. Download this repository using `git clone https://github.com/Roga-666/App-Store.git` or download its ZIP from GitHub, and open a terminal in the `App-Store` folder.
+3. Run `bash scripts/setup-secrets.sh`. This securely creates or reuses your long-lived F-Droid **repository-index signing key** at `~/roga-fdroid-repo.p12` and uploads the encrypted `FDROID_REPO_KEYSTORE_B64` and `FDROID_REPO_KEYSTORE_PASS` GitHub Actions secrets. **Back up the `.p12` key and password offline**; never paste them in chat or commit them to GitHub.
+4. For importing your **private GitHub projects**, create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) scoped only to those source repositories, with **Contents: Read-only**. Paste it into the hidden script prompt; it will become the `GH_READ_TOKEN` GitHub Actions secret. Public projects like Attendance and RoMote Emerald do not need this token.
+5. At [App-Store Settings → Pages](https://github.com/Roga-666/App-Store/settings/pages), select **Build and deployment → Source → GitHub Actions**.
+6. At [App-Store Actions](https://github.com/Roga-666/App-Store/actions), choose **Publish Droid-ify repository → Run workflow**. Verify the job finishes successfully.
+7. Then in Droid-ify → Repositories → Add, enter `https://roga-666.github.io/App-Store/repo`. The URL is not live until the Pages deployment succeeds.
+
+**App signing is separate.** The repository-index signing key generated here does not replace any Android application signing keys. Only previously signed, compatible APK releases are selected for publishing; the draft signing fixes for your individual projects remain pending until you set up their own keys.
 
 ## How new releases are collected
 
