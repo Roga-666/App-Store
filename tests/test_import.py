@@ -30,6 +30,34 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             m.choose_release(releases, {"include_prereleases": True, "allow_debug": True})
 
+    def test_signer_digest_formats_fail_closed(self):
+        digest = "a" * 64
+        for identity in ["Signer #1", "Signer (minSdkVersion=24, maxSdkVersion=32)"]:
+            self.assertEqual(
+                m.parse_signer_details(f"{identity} certificate SHA-256 digest: {digest}"),
+                (digest, False),
+            )
+            self.assertEqual(
+                m.parse_signer_details(f"{identity} certificate SHA-256 digest:\n{digest}"),
+                (digest, False),
+            )
+            self.assertEqual(
+                m.parse_signer_details(
+                    f"{identity} certificate SHA-256 digest: {digest}\n"
+                    f"{identity} certificate DN: CN=Android Debug,O=Android"
+                ),
+                (digest, True),
+            )
+        with self.assertRaisesRegex(ValueError, "Multiple distinct"):
+            m.parse_signer_details(
+                f"Signer #1 certificate SHA-256 digest: {digest}\n"
+                f"Signer #2 certificate SHA-256 digest: {'b' * 64}"
+            )
+        with self.assertRaisesRegex(ValueError, "malformed"):
+            m.parse_signer_details("Signer #1 certificate SHA-256 digest: broken")
+        with self.assertRaisesRegex(ValueError, "Cannot identify"):
+            m.parse_signer_details("No signer certificates")
+
     def test_incompatible_signatures_and_version_codes(self):
         old = {"package": "app.a", "certificate_sha256": "abc", "version_code": 2, "sha256": "old"}
         base = dict(old)
