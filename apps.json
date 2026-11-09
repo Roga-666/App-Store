@@ -1,0 +1,90 @@
+{
+  "owner": "Roga-666",
+  "repo_url": "https://roga-666.github.io/App-Store/repo",
+  "site_url": "https://roga-666.github.io/App-Store",
+  "apps": [
+    {
+      "repository": "Huddle",
+      "name": "Huddle",
+      "summary": "LensCrafters appointment huddles",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    },
+    {
+      "repository": "Redactor",
+      "name": "Redactor",
+      "summary": "Local document and image redaction",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    },
+    {
+      "repository": "FlashTrim",
+      "name": "FlashTrim",
+      "summary": "Android video trimming and frame tools",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    },
+    {
+      "repository": "RoMote-Emerald",
+      "name": "RoMote Emerald",
+      "summary": "Roku remote control",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "emerald-upstream-",
+      "asset_pattern": "^RoMote-Emerald-.*\\.apk$"
+    },
+    {
+      "repository": "Attendance",
+      "name": "Attendance",
+      "summary": "Attendance and time tracking",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "v",
+      "asset_pattern": "^Attendance-v.*\\.apk$"
+    },
+    {
+      "repository": "RelayLink",
+      "name": "RelayLink",
+      "summary": "Host and client relay utility",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    },
+    {
+      "repository": "LCPlus",
+      "name": "LC+",
+      "summary": "LensCrafters utilities",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    },
+    {
+      "repository": "Ace-Abo",
+      "name": "Ace Abo",
+      "summary": "ABO exam preparation",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    },
+    {
+      "repository": "Shizu-Go",
+      "name": "Shizu-Go",
+      "summary": "On-demand Shizuku launcher",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    },
+    {
+      "repository": "PokeDialer-Revived",
+      "name": "PokeDialer Revived",
+      "summary": "Experimental dialer; excluded until call safety is verified",
+      "enabled": false,
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "droidify-"
+    }
+  ]
+}
