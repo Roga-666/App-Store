@@ -32,7 +32,7 @@ class ReleaseTests(unittest.TestCase):
 
     def test_signer_digest_formats_fail_closed(self):
         digest = "a" * 64
-        for identity in ["Signer #1", "Signer (minSdkVersion=24, maxSdkVersion=32)"]:
+        for identity in ["Signer #1", "Signer (minSdkVersion=24, maxSdkVersion=32)", "V2 Signer:", "V3.0 Signer:"]:
             self.assertEqual(
                 m.parse_signer_details(f"{identity} certificate SHA-256 digest: {digest}"),
                 (digest, False),
