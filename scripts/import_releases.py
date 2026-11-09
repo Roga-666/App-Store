@@ -70,6 +70,41 @@ def download(session, url, output, *, expected_size=None):
         tmp.unlink(missing_ok=True)
 
 
+def parse_signer_details(signature):
+    """Extract a verified signer certificate from supported apksigner output formats.
+
+    Android build-tools can print 'Signer #1' or 'Signer (minSdkVersion=..., maxSdkVersion=...)'.
+    Fail closed if any certificate digest is malformed or if multiple distinct
+    certificates are present; do not silently accept an ambiguous signing identity.
+    """
+    lines = signature.splitlines()
+    digests = []
+    pattern = re.compile(
+        r"^\\s*Signer (?:#\\d+|\\([^)]*\\)) certificate SHA-256 digest:\\s*(.*)$",
+        re.IGNORECASE,
+    )
+    for index, line in enumerate(lines):
+        match = pattern.match(line)
+        if match is None:
+            continue
+        raw = match.group(1).strip()
+        if not raw and index + 1 < len(lines):
+            raw = lines[index + 1].strip()
+        digest = raw.replace(":", "").lower()
+        if not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise ValueError("APK signing certificate digest was malformed")
+        digests.append(digest)
+    if not digests:
+        raise ValueError("Cannot identify verified APK signing certificate")
+    if len(set(digests)) != 1:
+        raise ValueError("Multiple distinct APK signing certificates; manual review required")
+    debug = bool(re.search(
+        r"^\\s*Signer (?:#\\d+|\\([^)]*\\)) certificate DN:.*CN=Android Debug",
+        signature, re.IGNORECASE | re.MULTILINE,
+    ))
+    return digests[0], debug
+
+
 def inspect_apk(path):
     metadata = subprocess.run(["aapt", "dump", "badging", str(path)], check=True, capture_output=True, text=True).stdout
     package_line = next((line for line in metadata.splitlines() if line.startswith("package: ")), "")
@@ -77,13 +112,10 @@ def inspect_apk(path):
     if not m:
         raise ValueError("Cannot identify Android package ID/versionCode from APK")
     signature = subprocess.run(["apksigner", "verify", "--print-certs", str(path)], check=True, capture_output=True, text=True).stdout
-    s = re.search(r"Signer #1 certificate SHA-256 digest: ([0-9a-fA-F]+)", signature)
-    if not s:
-        raise ValueError("Cannot identify verified APK signing certificate")
-    debug = bool(re.search(r"Signer #1 certificate DN: .*CN=Android Debug", signature, re.IGNORECASE))
+    certificate_sha256, debug = parse_signer_details(signature)
     return {
         "package": m.group(1), "version_code": int(m.group(2)),
-        "version_name": m.group(3), "certificate_sha256": s.group(1).lower(),
+        "version_name": m.group(3), "certificate_sha256": certificate_sha256,
         "debug_certificate": debug,
     }
 
@@ -210,7 +242,16 @@ def main():
         previous = old_apps.get(name)
         try:
             url = f'https://api.github.com/repos/{conf["owner"]}/{name}/releases?per_page=30'
-            releases = request_json(session, url)
+            try:
+                releases = request_json(session, url)
+            except requests.HTTPError as error:
+                if error.response is not None and error.response.status_code == 404:
+                    raise RuntimeError(
+                        "GitHub returned 404. For private repositories, confirm GH_READ_TOKEN "
+                        "is a valid fine-grained PAT belonging to the correct resource owner "
+                        "with Contents: Read and access to this repository."
+                    ) from error
+                raise
             release, asset = choose_release(releases, app)
             if not asset:
                 raise RuntimeError("No matching published APK releases")
