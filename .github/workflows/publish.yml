@@ -1,0 +1,111 @@
+name: Publish Droid-ify repository
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps.json
+      - scripts/**
+      - requirements.txt
+      - assets/**
+      - .github/workflows/publish.yml
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: app-store-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Set up Android APK verification tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_tools="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          test -n "$build_tools" || { echo '::error::Android SDK build-tools missing'; exit 1; }
+          echo "$build_tools" >> "$GITHUB_PATH"
+          test -x "$build_tools/aapt"
+          test -x "$build_tools/apksigner"
+
+      - name: Install F-Droid tools
+        run: python -m pip install -r requirements.txt
+
+      - name: Restore persistent repo signing key
+        shell: bash
+        env:
+          FDROID_REPO_KEYSTORE_B64: ${{ secrets.FDROID_REPO_KEYSTORE_B64 }}
+          FDROID_REPO_KEYSTORE_PASS: ${{ secrets.FDROID_REPO_KEYSTORE_PASS }}
+        run: |
+          set -euo pipefail
+          test -n "${FDROID_REPO_KEYSTORE_B64:-}" || { echo '::error::Set FDROID_REPO_KEYSTORE_B64 repository secret'; exit 1; }
+          test -n "${FDROID_REPO_KEYSTORE_PASS:-}" || { echo '::error::Set FDROID_REPO_KEYSTORE_PASS repository secret'; exit 1; }
+          mkdir -p "$RUNNER_TEMP/roga-fdroid"
+          chmod 700 "$RUNNER_TEMP/roga-fdroid"
+          printf '%s' "$FDROID_REPO_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/roga-fdroid/repo.p12"
+          chmod 600 "$RUNNER_TEMP/roga-fdroid/repo.p12"
+          keytool -list -alias fdroidrepo -keystore "$RUNNER_TEMP/roga-fdroid/repo.p12" -storepass:env FDROID_REPO_KEYSTORE_PASS >/dev/null
+
+      - name: Fetch and validate signed GitHub release APKs
+        env:
+          GH_READ_TOKEN: ${{ secrets.GH_READ_TOKEN }}
+        run: python scripts/import_releases.py
+
+      - name: Generate signed F-Droid index
+        env:
+          FDROID_REPO_KEYSTORE: ${{ runner.temp }}/roga-fdroid/repo.p12
+          FDROID_REPO_KEYSTORE_PASS: ${{ secrets.FDROID_REPO_KEYSTORE_PASS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/write_fdroid_config.py
+          cp assets/repo-icon.png build/fdroid/repo/fdroid-icon.png
+          (cd build/fdroid && fdroid update)
+          test -s build/fdroid/repo/index.jar
+          test -s build/fdroid/repo/index-v1.json
+          cp -a build/fdroid/repo build/site/repo
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/site
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Publication summary
+        if: success()
+        run: |
+          python - <<'PY'
+          import json, os
+          report = json.load(open('build/site/report.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write(f'## Roga App Repository\n\nPublished {len(report["included"])} apps.\n\n')
+              for name in report['included']:
+                  f.write(f'- {name}\n')
+              if report['warnings']:
+                  f.write('\n### Warnings\n')
+                  for name, reason in report['warnings'].items():
+                      f.write(f'- {name}: {reason}\n')
+          PY
