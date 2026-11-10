@@ -78,6 +78,15 @@
       "release_tag_prefix": "droidify-"
     },
     {
+      "repository": "External-Cam",
+      "name": "External Cam",
+      "summary": "Offline UVC USB camera viewer with photo/video recording and USB diagnostics",
+      "include_prereleases": false,
+      "allow_debug": false,
+      "release_tag_prefix": "v",
+      "asset_pattern": "^External-Cam-v.*\\.apk$"
+    },
+    {
       "repository": "PokeDialer-Revived",
       "name": "PokeDialer Revived",
       "summary": "Experimental dialer; excluded until call safety is verified",
