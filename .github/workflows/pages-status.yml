@@ -1,0 +1,22 @@
+name: Diagnose Pages publication
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/pages-status.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read Pages configuration and active deployment status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{status,build_type,html_url,source}'
+          gh api "repos/$GITHUB_REPOSITORY/pages/deployments/cc505cb71fe28a15b380cae870c487945dfb810c" --jq '{status,error}'
