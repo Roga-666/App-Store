@@ -74,4 +74,7 @@ echo
 echo "External Cam: four repository signing secrets configured."
 echo "BACK UP securely: $keyfile"
 echo "Keep its password in your password manager; never store it in Git or in chat."
-echo "After backup, trigger the signed release workflow for External-Cam."
+echo "Starting External Cam signed-release workflow..."
+gh workflow run release.yml --repo "$repo" --ref main
+echo "Release workflow requested. Check: https://github.com/$repo/actions/workflows/release.yml"
+echo "After successful signature verification, the APK appears at: https://github.com/$repo/releases"
