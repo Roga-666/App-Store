@@ -6,7 +6,7 @@
     {
       "repository": "Huddle",
       "name": "Huddle",
-      "summary": "LensCrafters appointment huddles",
+      "summary": "Appointment huddles and daily goals",
       "include_prereleases": false,
       "allow_debug": false,
       "release_tag_prefix": "droidify-"
@@ -14,7 +14,7 @@
     {
       "repository": "Redactor",
       "name": "Redactor",
-      "summary": "Local document and image redaction",
+      "summary": "On-device image and PDF redaction",
       "include_prereleases": false,
       "allow_debug": false,
       "release_tag_prefix": "droidify-"
@@ -22,7 +22,7 @@
     {
       "repository": "FlashTrim",
       "name": "FlashTrim",
-      "summary": "Android video trimming and frame tools",
+      "summary": "Video trimming and flash-frame detection",
       "include_prereleases": false,
       "allow_debug": false,
       "release_tag_prefix": "droidify-"
@@ -48,7 +48,7 @@
     {
       "repository": "RelayLink",
       "name": "RelayLink",
-      "summary": "Host and client relay utility",
+      "summary": "Host/client network relay utility",
       "include_prereleases": false,
       "allow_debug": false,
       "release_tag_prefix": "droidify-"
@@ -56,7 +56,7 @@
     {
       "repository": "LCPlus",
       "name": "LC+",
-      "summary": "LensCrafters utilities",
+      "summary": "LensCrafters shift and store utilities",
       "include_prereleases": false,
       "allow_debug": false,
       "release_tag_prefix": "droidify-"
@@ -64,7 +64,7 @@
     {
       "repository": "Ace-Abo",
       "name": "Ace Abo",
-      "summary": "ABO exam preparation",
+      "summary": "ABO exam preparation and practice",
       "include_prereleases": false,
       "allow_debug": false,
       "release_tag_prefix": "droidify-"
