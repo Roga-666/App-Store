@@ -95,9 +95,32 @@ jobs:
         with:
           path: build/site
 
+      - name: Check out pinned official Pages action
+        uses: actions/checkout@v4
+        with:
+          repository: actions/deploy-pages
+          ref: d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
+          path: .github/actions/deploy-pages
+          persist-credentials: false
+
+      - name: Allow longer Pages file synchronization
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          action = Path('.github/actions/deploy-pages/dist/index.js')
+          source = action.read_text()
+          marker = 'const MAX_TIMEOUT = 600000'
+          if source.count(marker) != 1:
+              raise SystemExit('Pinned Pages action timeout marker changed; review required')
+          action.write_text(source.replace(marker, 'const MAX_TIMEOUT = 1800000'))
+          PY
+
       - name: Deploy GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        timeout-minutes: 35
+        uses: ./.github/actions/deploy-pages
+        with:
+          timeout: '1800000'
 
       - name: Publication summary
         if: success()

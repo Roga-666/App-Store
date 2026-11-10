@@ -80,3 +80,6 @@ Edit `apps.json`, using the exact GitHub repository name. You can set:
 ## Local checks
 
 Run `python -m pip install -r requirements.txt` and `python -m unittest discover -s tests -v` to test Python selection/signature policies. The full APK import and signed index publication require Android SDK build tools, a signing key, live releases, and GitHub Actions.
+## Pages file-sync delays
+
+The official Pages action has a ten-minute polling limit. This repository has repeatedly reached that limit while GitHub reports `syncing_files`, canceling otherwise valid catalog deployments. The publishing workflow checks out the official action pinned to `d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e`, verifies the expected timeout constant, and extends only that constant and the requested wait to thirty minutes. Authentication, deployment permissions, artifact validation, and cancellation handling remain the official implementation. Review this narrow workaround when upgrading the pinned action.
