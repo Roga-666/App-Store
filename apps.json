@@ -30,10 +30,10 @@
     {
       "repository": "RoMote-Emerald",
       "name": "RoMote Emerald",
-      "summary": "Roku remote control",
+      "summary": "Roku remote with selectable notification controls",
       "include_prereleases": false,
       "allow_debug": false,
-      "release_tag_prefix": "emerald-upstream-",
+      "release_tag_prefix": "emerald-",
       "asset_pattern": "^RoMote-Emerald-.*\\.apk$"
     },
     {

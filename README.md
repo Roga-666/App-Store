@@ -27,7 +27,7 @@ GitHub Actions runs on manual dispatch, pushes to the configuration/scripts, and
 
 1. Reads `apps.json` for the source repositories you chose.
 2. Queries GitHub Releases, using the optional read-only `GH_READ_TOKEN` for private repos.
-3. Selects the newest eligible **stable-signed** release with a single APK asset. Historical debug releases are excluded. The catalog currently expects `droidify-*` release tags from the newly signed apps, `emerald-upstream-*` from RoMote Emerald, and `v*` from Attendance.
+3. Selects the newest eligible **stable-signed** release with a single APK asset. Historical debug releases are excluded. The catalog currently expects `droidify-*` release tags from the newly signed apps, `emerald-*` from RoMote Emerald, and `v*` from Attendance.
 4. Verifies APK signing with Android's `apksigner` and reads `packageName` / `versionCode` with `aapt`.
 5. Blocks updates if the signer or application ID changes or the `versionCode` fails to increase for a changed APK. On a rejected update, attempts to retain the previously published version.
 6. Creates signed F-Droid index files (`fdroidserver`), a catalog website, and a machine-readable publication report.
