@@ -40,7 +40,7 @@
     {
       "repository": "Attendance",
       "name": "Attendance",
-      "summary": "Attendance and time tracking",
+      "summary": "Attendance, hours, and lunch tracking",
       "include_prereleases": false,
       "allow_debug": false,
       "release_tag_prefix": "v",
