@@ -25,7 +25,8 @@
       "summary": "Video trimming and flash-frame detection",
       "include_prereleases": false,
       "allow_debug": false,
-      "release_tag_prefix": "droidify-"
+      "release_tag_prefix": "droidify-",
+      "asset_pattern": "^FlashTrim-droidify-[0-9]+\\.apk$"
     },
     {
       "repository": "RoMote-Emerald",
